@@ -33,6 +33,11 @@ if (file_exists($prodConfig)) {
     // Environment
     define('ENVIRONMENT', 'development');
 
+    // Webhook Configuration
+    define('WEBHOOKS', [
+        'zapier_ai_analysis' => 'YOUR_ZAPIER_WEBHOOK_URL_HERE'
+    ]);
+
     // Error reporting (enabled for development)
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);

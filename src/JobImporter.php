@@ -250,7 +250,21 @@ class JobImporter {
         }
 
         $stmt->close();
+        
+        // Send to Zapier for AI analysis
+        $this->sendToZapier($jobId, $company, $roleTitle, $whyNow);
+        
         return true;
+    }
+    
+    /**
+     * Send job to Zapier for AI analysis
+     */
+    private function sendToZapier($jobId, $company, $roleTitle, $jobDescription) {
+        // Only send if WebhookHandler is available
+        if (class_exists('WebhookHandler')) {
+            WebhookHandler::sendToZapierForAnalysis($jobId, $company, $roleTitle, $jobDescription);
+        }
     }
 
     /**

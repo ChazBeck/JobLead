@@ -13,6 +13,7 @@ require_once '../src/helpers.php';
 
 // Load classes
 require_once '../src/Database.php';
+require_once '../src/WebhookHandler.php';
 
 // Initialize database connection (optional for now)
 try {

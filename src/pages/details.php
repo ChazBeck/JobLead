@@ -106,6 +106,49 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                 </div>
             </div>
 
+            <?php 
+            // Check if AI analysis has been performed
+            $hasAnalysis = $job['ai_analyzed_at'] !== null;
+            if ($hasAnalysis):
+                $offerings = [
+                    'sustainability_reporting' => 'Sustainability Reporting & Disclosure',
+                    'data_management_esg' => 'Data Management & ESG Metrics',
+                    'esg_strategy_roadmapping' => 'ESG Strategy & Roadmapping',
+                    'regulatory_compliance' => 'Regulatory Compliance & Standards',
+                    'esg_ratings_rankings' => 'ESG Ratings & Rankings',
+                    'stakeholder_engagement' => 'Stakeholder Engagement & Communication',
+                    'governance_policy' => 'Governance & Policy Development',
+                    'technology_tools' => 'Technology & Tools for Sustainability'
+                ];
+            ?>
+            <div class="detail-section">
+                <h4>AI Analysis - ESG Offerings Detected</h4>
+                <div class="detail-row">
+                    <span class="label">Analyzed:</span>
+                    <span class="value"><?php echo date('M j, Y g:i A', strtotime($job['ai_analyzed_at'])); ?></span>
+                </div>
+                
+                <div class="offering-tags">
+                    <?php foreach ($offerings as $key => $label): ?>
+                        <?php if ($job[$key] === 1): ?>
+                            <span class="offering-tag detected">✓ <?php echo htmlspecialchars($label); ?></span>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                    
+                    <?php if (array_sum(array_map(function($k) use ($job) { return $job[$k] ?? 0; }, array_keys($offerings))) === 0): ?>
+                        <span class="offering-tag">No offerings detected</span>
+                    <?php endif; ?>
+                </div>
+                
+                <?php if (!empty($job['ai_analysis_notes'])): ?>
+                <div class="detail-row" style="margin-top: 1rem;">
+                    <span class="label">Analysis Notes:</span>
+                    <span class="value"><?php echo nl2br(htmlspecialchars($job['ai_analysis_notes'])); ?></span>
+                </div>
+                <?php endif; ?>
+            </div>
+            <?php endif; ?>
+
             <?php if (!empty($contacts)): ?>
             <div class="detail-section">
                 <h4>Likely Buyers/Managers</h4>

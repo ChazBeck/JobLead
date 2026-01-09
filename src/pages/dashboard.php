@@ -7,6 +7,15 @@ try {
             j.company,
             j.role_title,
             j.status,
+            j.ai_analyzed_at,
+            j.sustainability_reporting,
+            j.data_management_esg,
+            j.esg_strategy_roadmapping,
+            j.regulatory_compliance,
+            j.esg_ratings_rankings,
+            j.stakeholder_engagement,
+            j.governance_policy,
+            j.technology_tools,
             c.name as contact_name,
             c.title as contact_title
         FROM jobs j
@@ -42,17 +51,42 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                         <th>Job Role</th>
                         <th>Hiring Manager Name</th>
                         <th>Hiring Manager Title</th>
+                        <th>AI Analysis</th>
                         <th>Status</th>
                         <th>Details</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($jobs as $job): ?>
+                        <?php
+                        // Count detected offerings
+                        $offerings = [
+                            $job['sustainability_reporting'],
+                            $job['data_management_esg'],
+                            $job['esg_strategy_roadmapping'],
+                            $job['regulatory_compliance'],
+                            $job['esg_ratings_rankings'],
+                            $job['stakeholder_engagement'],
+                            $job['governance_policy'],
+                            $job['technology_tools']
+                        ];
+                        $offeringsCount = count(array_filter($offerings, function($v) { return $v === 1; }));
+                        $hasAnalysis = $job['ai_analyzed_at'] !== null;
+                        ?>
                         <tr>
                             <td><?php echo htmlspecialchars($job['company']); ?></td>
                             <td><?php echo htmlspecialchars($job['role_title']); ?></td>
                             <td><?php echo htmlspecialchars($job['contact_name'] ?? 'N/A'); ?></td>
                             <td><?php echo htmlspecialchars($job['contact_title'] ?? 'N/A'); ?></td>
+                            <td>
+                                <?php if ($hasAnalysis): ?>
+                                    <span class="ai-badge" title="AI analysis completed">
+                                        ✓ <?php echo $offeringsCount; ?> offering<?php echo $offeringsCount !== 1 ? 's' : ''; ?>
+                                    </span>
+                                <?php else: ?>
+                                    <span class="ai-badge pending" title="Awaiting AI analysis">⏳ Pending</span>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>">
                                     <option value="New" <?php echo ($job['status'] ?? 'New') === 'New' ? 'selected' : ''; ?>>New</option>

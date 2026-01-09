@@ -1,0 +1,113 @@
+<?php
+require_once __DIR__ . '/../Database.php';
+
+// Set content type to JSON
+header('Content-Type: application/json');
+
+// Only accept POST requests
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
+}
+
+// Get JSON input
+$input = file_get_contents('php://input');
+$data = json_decode($input, true);
+
+// Log the incoming webhook for debugging
+error_log("Webhook received: " . $input);
+
+if (!$data || !isset($data['job_id']) || !isset($data['offerings'])) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Missing required fields (job_id or offerings)']);
+    exit;
+}
+
+$jobId = intval($data['job_id']);
+$offerings = $data['offerings'];
+$notes = $data['notes'] ?? null;
+
+// Validate offerings structure
+$validOfferings = [
+    'sustainability_reporting',
+    'data_management_esg',
+    'esg_strategy_roadmapping',
+    'regulatory_compliance',
+    'esg_ratings_rankings',
+    'stakeholder_engagement',
+    'governance_policy',
+    'technology_tools'
+];
+
+// Validate that we have valid offering keys
+foreach (array_keys($offerings) as $key) {
+    if (!in_array($key, $validOfferings)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'message' => "Invalid offering key: $key"]);
+        exit;
+    }
+}
+
+try {
+    $db = new Database();
+    $conn = $db->connect();
+    
+    // Check if job exists
+    $stmt = $conn->prepare("SELECT id FROM jobs WHERE id = ?");
+    $stmt->bind_param("i", $jobId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'Job not found']);
+        exit;
+    }
+    
+    // Build UPDATE query dynamically based on provided offerings
+    $updateFields = [];
+    $types = '';
+    $values = [];
+    
+    foreach ($validOfferings as $offering) {
+        if (isset($offerings[$offering])) {
+            $updateFields[] = "$offering = ?";
+            $types .= 'i';
+            $values[] = $offerings[$offering] ? 1 : 0;
+        }
+    }
+    
+    // Add notes if provided
+    if ($notes !== null) {
+        $updateFields[] = "ai_analysis_notes = ?";
+        $types .= 's';
+        $values[] = $notes;
+    }
+    
+    // Add timestamp
+    $updateFields[] = "ai_analyzed_at = NOW()";
+    
+    // Add job_id for WHERE clause
+    $types .= 'i';
+    $values[] = $jobId;
+    
+    $sql = "UPDATE jobs SET " . implode(', ', $updateFields) . " WHERE id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param($types, ...$values);
+    $stmt->execute();
+    
+    error_log("AI analysis updated for job #{$jobId}");
+    
+    echo json_encode([
+        'success' => true,
+        'message' => 'AI analysis saved successfully',
+        'job_id' => $jobId,
+        'offerings_updated' => array_keys($offerings)
+    ]);
+    
+} catch (Exception $e) {
+    http_response_code(500);
+    error_log("Webhook error: " . $e->getMessage());
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+}

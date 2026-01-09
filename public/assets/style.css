@@ -287,3 +287,45 @@ table a:hover {
     cursor: not-allowed;
     background-color: #f5f5f5;
 }
+
+/* AI Analysis badges */
+.ai-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.ai-badge.pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffeaa7;
+}
+
+/* Offering tags */
+.offering-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.offering-tag {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #90caf9;
+}
+
+.offering-tag.detected {
+    background-color: #c8e6c9;
+    color: #2e7d32;
+    border-color: #81c784;
+}
