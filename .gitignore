@@ -1,0 +1,20 @@
+# Production config (contains sensitive credentials)
+config/config.prod.php
+
+# Uploads directory
+uploads/*
+!uploads/.gitkeep
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log

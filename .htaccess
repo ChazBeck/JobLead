@@ -1,0 +1,14 @@
+# Root .htaccess - Prevent access to root directory
+# All traffic should go through /public/
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^$ public/ [L]
+    RewriteRule (.*) public/$1 [L]
+</IfModule>
+
+# Deny access to sensitive files and directories
+<FilesMatch "^(config|src|database|uploads)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
