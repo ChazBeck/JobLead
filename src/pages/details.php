@@ -169,6 +169,15 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
             </div>
             <?php endif; ?>
 
+            <?php if (!empty($job['job_description'])): ?>
+            <div class="detail-section">
+                <h4>Job Description</h4>
+                <div class="long-text">
+                    <?php echo linkifyText(nl2br(htmlspecialchars($job['job_description']))); ?>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <div class="detail-section">
                 <h4>Why Now</h4>
                 <div class="long-text">
