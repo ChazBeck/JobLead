@@ -17,6 +17,9 @@ header {
     padding: 1.5rem 2rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-bottom: 1px solid #e0e0e0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 header h1 {
@@ -35,6 +38,9 @@ nav {
     align-items: center;
     gap: 2rem;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 88px;
+    z-index: 99;
 }
 
 nav ul {
@@ -136,9 +142,9 @@ form button:hover {
 
 table {
     width: 100%;
-    background: white;
-    border-collapse: collapse;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: transparent;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
 table th {
@@ -146,15 +152,65 @@ table th {
     color: white;
     padding: 1rem;
     text-align: left;
+    position: sticky;
+    top: 147px;
+    z-index: 10;
 }
 
 table td {
     padding: 1rem;
-    border-bottom: 1px solid #ddd;
+    background-color: white;
 }
 
-table tr:hover {
-    background-color: #f9f9f9;
+table tbody tr {
+    background-color: white;
+}
+
+table tbody > tr:not(.offerings-row) {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+table tbody > tr:not(.offerings-row) td {
+    border-top: 1px solid #e0e0e0;
+}
+
+table tbody > tr:not(.offerings-row) td:first-child {
+    border-left: 1px solid #e0e0e0;
+    border-top-left-radius: 6px;
+}
+
+table tbody > tr:not(.offerings-row) td:last-child {
+    border-right: 1px solid #e0e0e0;
+    border-top-right-radius: 6px;
+}
+
+table tbody > tr:not(.offerings-row):hover {
+    background-color: #fafafa;
+}
+
+table tbody > tr:not(.offerings-row):hover + .offerings-row {
+    background-color: #f5f5f5;
+}
+
+/* Offerings row */
+.offerings-row {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.offerings-row td {
+    padding: 0.75rem 1rem 1rem 2rem;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding-bottom: 30px;
+}
+
+.offerings-row:hover {
+    background-color: #f5f5f5;
 }
 
 table a {
@@ -164,6 +220,34 @@ table a {
 
 table a:hover {
     text-decoration: underline;
+}
+
+/* Dashboard role cell with offerings */
+.role-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.role-title {
+    font-weight: 500;
+}
+
+.role-offerings {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.offering-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 500;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
 }
 
 .back-link {
@@ -208,6 +292,21 @@ table a:hover {
     margin-bottom: 1rem;
     font-size: 1.1rem;
     font-weight: 600;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.detail-section h4.ai-section {
+    color: #1565c0;
+    border-bottom-color: #90caf9;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-section h4.ai-section::before {
+    content: "🤖";
+    font-size: 1.2rem;
 }
 
 .detail-row {
@@ -306,26 +405,40 @@ table a:hover {
     border-color: #ffeaa7;
 }
 
+/* Offerings header section */
+.offerings-header {
+    margin: 1.5rem 0 2rem 0;
+    padding: 1rem 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.no-offerings {
+    color: #999;
+    font-size: 14px;
+    font-style: italic;
+}
+
 /* Offering tags */
 .offering-tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 0.5rem;
 }
 
 .offering-tag {
-    display: inline-block;
-    padding: 4px 10px;
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
     border-radius: 4px;
     font-size: 13px;
-    background-color: #e3f2fd;
-    color: #1565c0;
-    border: 1px solid #90caf9;
+    font-weight: 500;
+    background-color: #f5f5f5;
+    color: #666;
+    border: 1px solid #ddd;
 }
 
 .offering-tag.detected {
-    background-color: #c8e6c9;
+    background-color: #e8f5e9;
     color: #2e7d32;
-    border-color: #81c784;
+    border-color: #a5d6a7;
 }

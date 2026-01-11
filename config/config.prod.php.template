@@ -1,0 +1,43 @@
+<?php
+/**
+ * Production Configuration
+ * 
+ * INSTRUCTIONS:
+ * 1. Copy this file to your server
+ * 2. Update all the values below with your production credentials
+ * 3. Keep this file secure and never commit it to Git
+ */
+
+// Base paths
+define('BASE_PATH', dirname(__DIR__));
+define('PUBLIC_PATH', BASE_PATH . '/public');
+define('SRC_PATH', BASE_PATH . '/src');
+define('CONFIG_PATH', BASE_PATH . '/config');
+
+// Web paths - UPDATE THESE FOR YOUR SITE
+define('BASE_URL', '/apps/public');  // No trailing slash
+define('ASSETS_URL', BASE_URL . '/assets');
+
+// Database configuration - UPDATE THESE WITH YOUR CPANEL DATABASE INFO
+define('DB_HOST', 'localhost');  // Usually 'localhost' on shared hosting
+define('DB_USER', 'YOUR_DB_USERNAME');  // From cPanel MySQL Databases
+define('DB_PASS', 'YOUR_DB_PASSWORD');  // From cPanel MySQL Databases
+define('DB_NAME', 'YOUR_DB_NAME');  // From cPanel MySQL Databases (may have prefix like username_joblead)
+define('DB_CHARSET', 'utf8mb4');
+define('DB_SOCKET', null);  // Not needed on shared hosting
+
+// Environment
+define('ENVIRONMENT', 'production');
+
+// Webhook Configuration - UPDATE WITH YOUR ZAPIER WEBHOOK URLS
+define('WEBHOOKS', [
+    'zapier_ai_analysis' => 'YOUR_ZAPIER_WEBHOOK_URL_HERE'
+]);
+
+// Error reporting (disabled for production)
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', 0);
+error_reporting(0);
+
+// Error logging (errors will be logged to PHP error log)
+ini_set('log_errors', 1);

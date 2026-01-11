@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../OfferingTypes.php';
+
 // Get job ID from URL
 $jobId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -44,6 +46,29 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
 
         <h2><?php echo htmlspecialchars($job['company']); ?></h2>
         <h3><?php echo htmlspecialchars($job['role_title']); ?></h3>
+
+        <?php 
+        // Check if AI analysis has been performed
+        $hasAnalysis = $job['ai_analyzed_at'] !== null;
+        
+        if ($hasAnalysis):
+            $offerings = OfferingTypes::getFullLabels();
+            $detectedCount = array_sum(array_map(function($k) use ($job) { return $job[$k] ?? 0; }, array_keys($offerings)));
+        ?>
+        <div class="offerings-header">
+            <?php if ($detectedCount > 0): ?>
+                <div class="offering-tags">
+                    <?php foreach ($offerings as $key => $label): ?>
+                        <?php if (($job[$key] ?? 0) == 1): ?>
+                            <span class="offering-tag detected"><?php echo htmlspecialchars($label); ?></span>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p class="no-offerings">No ESG offerings detected in this role</p>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
 
         <div class="job-details">
             <div class="detail-section">
@@ -106,48 +131,7 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                 </div>
             </div>
 
-            <?php 
-            // Check if AI analysis has been performed
-            $hasAnalysis = $job['ai_analyzed_at'] !== null;
-            if ($hasAnalysis):
-                $offerings = [
-                    'sustainability_reporting' => 'Sustainability Reporting & Disclosure',
-                    'data_management_esg' => 'Data Management & ESG Metrics',
-                    'esg_strategy_roadmapping' => 'ESG Strategy & Roadmapping',
-                    'regulatory_compliance' => 'Regulatory Compliance & Standards',
-                    'esg_ratings_rankings' => 'ESG Ratings & Rankings',
-                    'stakeholder_engagement' => 'Stakeholder Engagement & Communication',
-                    'governance_policy' => 'Governance & Policy Development',
-                    'technology_tools' => 'Technology & Tools for Sustainability'
-                ];
-            ?>
-            <div class="detail-section">
-                <h4>AI Analysis - ESG Offerings Detected</h4>
-                <div class="detail-row">
-                    <span class="label">Analyzed:</span>
-                    <span class="value"><?php echo date('M j, Y g:i A', strtotime($job['ai_analyzed_at'])); ?></span>
-                </div>
-                
-                <div class="offering-tags">
-                    <?php foreach ($offerings as $key => $label): ?>
-                        <?php if ($job[$key] === 1): ?>
-                            <span class="offering-tag detected">✓ <?php echo htmlspecialchars($label); ?></span>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                    
-                    <?php if (array_sum(array_map(function($k) use ($job) { return $job[$k] ?? 0; }, array_keys($offerings))) === 0): ?>
-                        <span class="offering-tag">No offerings detected</span>
-                    <?php endif; ?>
-                </div>
-                
-                <?php if (!empty($job['ai_analysis_notes'])): ?>
-                <div class="detail-row" style="margin-top: 1rem;">
-                    <span class="label">Analysis Notes:</span>
-                    <span class="value"><?php echo nl2br(htmlspecialchars($job['ai_analysis_notes'])); ?></span>
-                </div>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
+
 
             <?php if (!empty($contacts)): ?>
             <div class="detail-section">

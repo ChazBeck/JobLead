@@ -1,4 +1,7 @@
 <?php
+require_once __DIR__ . '/../OfferingTypes.php';
+require_once __DIR__ . '/../constants.php';
+
 // Query all jobs with their primary contact
 try {
     $query = "
@@ -6,6 +9,7 @@ try {
             j.id,
             j.company,
             j.role_title,
+            j.industry,
             j.status,
             j.ai_analyzed_at,
             j.sustainability_reporting,
@@ -49,9 +53,9 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                     <tr>
                         <th>Company</th>
                         <th>Job Role</th>
+                        <th>Industry</th>
                         <th>Hiring Manager Name</th>
                         <th>Hiring Manager Title</th>
-                        <th>AI Analysis</th>
                         <th>Status</th>
                         <th>Details</th>
                     </tr>
@@ -59,47 +63,46 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                 <tbody>
                     <?php foreach ($jobs as $job): ?>
                         <?php
-                        // Count detected offerings
-                        $offerings = [
-                            $job['sustainability_reporting'],
-                            $job['data_management_esg'],
-                            $job['esg_strategy_roadmapping'],
-                            $job['regulatory_compliance'],
-                            $job['esg_ratings_rankings'],
-                            $job['stakeholder_engagement'],
-                            $job['governance_policy'],
-                            $job['technology_tools']
-                        ];
-                        $offeringsCount = count(array_filter($offerings, function($v) { return $v === 1; }));
+                        // Get detected offerings using centralized class
+                        $offeringLabels = OfferingTypes::getLabels();
+                        $detectedOfferings = [];
+                        foreach ($offeringLabels as $key => $label) {
+                            if (($job[$key] ?? 0) == 1) {
+                                $detectedOfferings[] = $label;
+                            }
+                        }
                         $hasAnalysis = $job['ai_analyzed_at'] !== null;
                         ?>
                         <tr>
                             <td><?php echo htmlspecialchars($job['company']); ?></td>
-                            <td><?php echo htmlspecialchars($job['role_title']); ?></td>
+                            <td>
+                                <div class="role-title"><?php echo htmlspecialchars($job['role_title']); ?></div>
+                            </td>
+                            <td><?php echo htmlspecialchars($job['industry'] ?? 'N/A'); ?></td>
                             <td><?php echo htmlspecialchars($job['contact_name'] ?? 'N/A'); ?></td>
                             <td><?php echo htmlspecialchars($job['contact_title'] ?? 'N/A'); ?></td>
                             <td>
-                                <?php if ($hasAnalysis): ?>
-                                    <span class="ai-badge" title="AI analysis completed">
-                                        ✓ <?php echo $offeringsCount; ?> offering<?php echo $offeringsCount !== 1 ? 's' : ''; ?>
-                                    </span>
-                                <?php else: ?>
-                                    <span class="ai-badge pending" title="Awaiting AI analysis">⏳ Pending</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
                                 <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>">
-                                    <option value="New" <?php echo ($job['status'] ?? 'New') === 'New' ? 'selected' : ''; ?>>New</option>
-                                    <option value="Awaiting approval" <?php echo ($job['status'] ?? '') === 'Awaiting approval' ? 'selected' : ''; ?>>Awaiting approval</option>
-                                    <option value="Create Email" <?php echo ($job['status'] ?? '') === 'Create Email' ? 'selected' : ''; ?>>Create Email</option>
-                                    <option value="Not interested" <?php echo ($job['status'] ?? '') === 'Not interested' ? 'selected' : ''; ?>>Not interested</option>
-                                    <option value="Email sent" <?php echo ($job['status'] ?? '') === 'Email sent' ? 'selected' : ''; ?>>Email sent</option>
-                                    <option value="Email Opened" <?php echo ($job['status'] ?? '') === 'Email Opened' ? 'selected' : ''; ?>>Email Opened</option>
-                                    <option value="Responded to Email" <?php echo ($job['status'] ?? '') === 'Responded to Email' ? 'selected' : ''; ?>>Responded to Email</option>
+                                    <?php foreach (VALID_JOB_STATUSES as $status): ?>
+                                        <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($status); ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
                             </td>
                             <td><a href="?page=details&id=<?php echo $job['id']; ?>">View Details</a></td>
                         </tr>
+                        <?php if ($hasAnalysis && !empty($detectedOfferings)): ?>
+                        <tr class="offerings-row">
+                            <td colspan="7">
+                                <div class="role-offerings">
+                                    <?php foreach ($detectedOfferings as $offering): ?>
+                                        <span class="offering-badge"><?php echo htmlspecialchars($offering); ?></span>
+                                    <?php endforeach; ?>
+                                </div>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>

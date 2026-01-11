@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../Database.php';
+require_once __DIR__ . '/../OfferingTypes.php';
 
 // Set content type to JSON
 header('Content-Type: application/json');
@@ -28,21 +29,12 @@ $jobId = intval($data['job_id']);
 $offerings = $data['offerings'];
 $notes = $data['notes'] ?? null;
 
-// Validate offerings structure
-$validOfferings = [
-    'sustainability_reporting',
-    'data_management_esg',
-    'esg_strategy_roadmapping',
-    'regulatory_compliance',
-    'esg_ratings_rankings',
-    'stakeholder_engagement',
-    'governance_policy',
-    'technology_tools'
-];
+// Validate offerings structure using centralized class
+$validOfferings = OfferingTypes::getValidKeys();
 
 // Validate that we have valid offering keys
 foreach (array_keys($offerings) as $key) {
-    if (!in_array($key, $validOfferings)) {
+    if (!OfferingTypes::isValid($key)) {
         http_response_code(400);
         echo json_encode(['success' => false, 'message' => "Invalid offering key: $key"]);
         exit;

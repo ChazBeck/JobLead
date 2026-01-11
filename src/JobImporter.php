@@ -187,6 +187,7 @@ class JobImporter {
         $location = $jobData['Location'] ?? null;
         $postedDate = $jobData['Posted/Updated Date'] ?? null;
         $lastSeenDate = $jobData['Last Seen Date'] ?? null;
+        $jobDescription = $jobData['Job Description'] ?? null;
         $whyNow = $jobData['Why Now'] ?? null;
         $verificationLevel = $jobData['Verification Level'] ?? null;
         $confidence = $jobData['Confidence'] ?? null;
@@ -203,11 +204,11 @@ class JobImporter {
 
         $stmt = $this->db->prepare("
             INSERT INTO jobs (
-                company, role_title, location, posted_date, last_seen_date,
+                company, role_title, job_description, location, posted_date, last_seen_date,
                 why_now, verification_level, confidence, revenue_tier,
                 revenue_estimate, revenue_confidence, fit_score, engagement_type,
                 recommended_angle, industry, source_link, parent_company, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -215,9 +216,10 @@ class JobImporter {
         }
 
         $stmt->bind_param(
-            'sssssssssssissssss',
+            'ssssssssssssissssss',
             $company,
             $roleTitle,
+            $jobDescription,
             $location,
             $postedDate,
             $lastSeenDate,
@@ -251,8 +253,10 @@ class JobImporter {
 
         $stmt->close();
         
-        // Send to Zapier for AI analysis
-        $this->sendToZapier($jobId, $company, $roleTitle, $whyNow);
+        // Send to Zapier for AI analysis using job_description
+        // Fall back to why_now if job_description is empty
+        $descriptionForAnalysis = !empty($jobDescription) ? $jobDescription : $whyNow;
+        $this->sendToZapier($jobId, $company, $roleTitle, $descriptionForAnalysis);
         
         return true;
     }

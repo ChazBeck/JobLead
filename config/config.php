@@ -35,7 +35,7 @@ if (file_exists($prodConfig)) {
 
     // Webhook Configuration
     define('WEBHOOKS', [
-        'zapier_ai_analysis' => 'YOUR_ZAPIER_WEBHOOK_URL_HERE'
+        'zapier_ai_analysis' => 'https://hooks.zapier.com/hooks/catch/20909251/ugy3ijf/'
     ]);
 
     // Error reporting (enabled for development)

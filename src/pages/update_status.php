@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../Database.php';
+require_once __DIR__ . '/../constants.php';
 
 // Set content type to JSON
 header('Content-Type: application/json');
@@ -24,18 +25,8 @@ if (!$data || !isset($data['job_id']) || !isset($data['status'])) {
 $jobId = intval($data['job_id']);
 $newStatus = $data['status'];
 
-// Validate status
-$validStatuses = [
-    'New',
-    'Awaiting approval',
-    'Create Email',
-    'Not interested',
-    'Email sent',
-    'Email Opened',
-    'Responded to Email'
-];
-
-if (!in_array($newStatus, $validStatuses)) {
+// Validate status using constants
+if (!in_array($newStatus, VALID_JOB_STATUSES)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Invalid status']);
     exit;

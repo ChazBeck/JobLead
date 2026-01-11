@@ -4,12 +4,31 @@
  * Sends and manages webhook requests to external services
  */
 
+require_once __DIR__ . '/constants.php';
+
 class WebhookHandler {
     
     /**
      * Send job data to Zapier for AI analysis
      */
     public static function sendToZapierForAnalysis($jobId, $company, $roleTitle, $jobDescription) {
+        // Validate inputs
+        if (!is_numeric($jobId) || $jobId <= 0) {
+            error_log("Invalid job ID provided to sendToZapierForAnalysis: " . var_export($jobId, true));
+            return false;
+        }
+        
+        // Sanitize string inputs
+        $jobId = (int)$jobId;
+        $company = trim($company);
+        $roleTitle = trim($roleTitle);
+        $jobDescription = trim($jobDescription);
+        
+        if (empty($company) || empty($roleTitle) || empty($jobDescription)) {
+            error_log("Empty required fields in sendToZapierForAnalysis for job #{$jobId}");
+            return false;
+        }
+        
         $webhookUrl = WEBHOOKS['zapier_ai_analysis'] ?? null;
         
         if (!$webhookUrl || $webhookUrl === 'YOUR_ZAPIER_WEBHOOK_URL_HERE') {
@@ -49,7 +68,7 @@ class WebhookHandler {
                 'User-Agent: JobLead/1.0'
             ],
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 10,
+            CURLOPT_TIMEOUT => WEBHOOK_TIMEOUT,
             CURLOPT_SSL_VERIFYPEER => true
         ]);
         
