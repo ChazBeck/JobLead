@@ -1,9 +1,19 @@
 <?php
-require_once __DIR__ . '/../Database.php';
-require_once __DIR__ . '/../OfferingTypes.php';
-
-// Set content type to JSON
+// Set content type to JSON first (before any output)
 header('Content-Type: application/json');
+
+// Enable error logging
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+try {
+    require_once __DIR__ . '/../Database.php';
+    require_once __DIR__ . '/../OfferingTypes.php';
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Failed to load required classes: ' . $e->getMessage()]);
+    exit;
+}
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
