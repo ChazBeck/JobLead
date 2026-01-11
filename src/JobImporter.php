@@ -181,11 +181,68 @@ class JobImporter {
     }
 
     /**
+     * Normalize field names to be case-insensitive and handle common variations
+     * @param array $jobData Job data array
+     * @return array Normalized job data
+     */
+    private function normalizeFieldNames($jobData) {
+        $fieldMap = [
+            // Standard name => alternative names
+            'Company' => ['company', 'Company Name', 'Organization'],
+            'Role Title' => ['role title', 'Job Title', 'Position', 'Title', 'role_title'],
+            'Location' => ['location', 'Office Location', 'Work Location'],
+            'Posted/Updated Date' => ['posted/updated date', 'Posted Date', 'Date Posted', 'posted_date'],
+            'Last Seen Date' => ['last seen date', 'Last Seen', 'last_seen_date'],
+            'Employment Type' => ['employment type', 'Job Type', 'Type'],
+            'Why Now' => ['why now', 'Rationale', 'why_now'],
+            'Verification Level' => ['verification level', 'Verification', 'verification_level'],
+            'Confidence' => ['confidence', 'Confidence Level'],
+            'Revenue Tier' => ['revenue tier', 'Tier', 'revenue_tier'],
+            'Revenue Estimate' => ['revenue estimate', 'Revenue', 'revenue_estimate'],
+            'Revenue Confidence' => ['revenue confidence', 'revenue_confidence'],
+            'Fit Score' => ['fit score', 'Score', 'fit_score'],
+            'Industry' => ['industry', 'Sector', 'Vertical'],
+            'Engagement Type' => ['engagement type', 'Engagement', 'engagement_type'],
+            'Job Description' => ['job description', 'Description', 'Job Details', 'job_description'],
+            'Likely Buyers/Managers' => ['likely buyers/managers', 'Contacts', 'Buyers', 'Managers', 'contacts'],
+            'Recommended Angle' => ['recommended angle', 'Angle', 'Approach', 'recommended_angle'],
+            'Source Link' => ['source link', 'Source', 'URL', 'Link', 'source_link'],
+            'Parent Company' => ['parent company', 'Parent', 'parent_company'],
+            'Status' => ['status', 'Job Status']
+        ];
+        
+        $normalized = [];
+        
+        foreach ($fieldMap as $standardName => $alternatives) {
+            // Check standard name first
+            if (isset($jobData[$standardName])) {
+                $normalized[$standardName] = $jobData[$standardName];
+                continue;
+            }
+            
+            // Check alternatives (case-insensitive)
+            foreach ($alternatives as $alt) {
+                foreach ($jobData as $key => $value) {
+                    if (strcasecmp($key, $alt) === 0) {
+                        $normalized[$standardName] = $value;
+                        continue 3; // Break out of all loops
+                    }
+                }
+            }
+        }
+        
+        return $normalized;
+    }
+    
+    /**
      * Insert a single job with its contacts
      * @param array $jobData Job data array
      * @return bool|string True if inserted, 'duplicate' if skipped, false on error
      */
     private function insertJob($jobData) {
+        // Normalize field names first
+        $jobData = $this->normalizeFieldNames($jobData);
+        
         // Clean all fields in the job data
         $jobData = $this->cleanAllFields($jobData);
         
@@ -270,9 +327,21 @@ class JobImporter {
         $jobId = $this->db->getConnection()->insert_id;
 
         // Insert contacts if they exist
-        if (!empty($jobData['Likely Buyers/Managers']) && is_array($jobData['Likely Buyers/Managers'])) {
-            foreach ($jobData['Likely Buyers/Managers'] as $contact) {
-                $this->insertContact($jobId, $contact);
+        // Handle both array of contacts or single contact object
+        $contacts = $jobData['Likely Buyers/Managers'] ?? null;
+        if (!empty($contacts)) {
+            // If it's a single object (not an array of objects), wrap it in an array
+            if (isset($contacts['Name']) || isset($contacts['name'])) {
+                $contacts = [$contacts];
+            }
+            
+            // Now iterate through contacts array
+            if (is_array($contacts)) {
+                foreach ($contacts as $contact) {
+                    if (is_array($contact)) {
+                        $this->insertContact($jobId, $contact);
+                    }
+                }
             }
         }
 
@@ -305,10 +374,16 @@ class JobImporter {
         // Clean all contact fields
         $contactData = $this->cleanAllFields($contactData);
         
-        $name = $contactData['Name'] ?? null;
-        $title = $contactData['Title'] ?? null;
-        $confidenceLevel = $contactData['Confidence'] ?? null;
-        $source = $contactData['Source'] ?? null;
+        // Handle case-insensitive field names for contacts
+        $name = $contactData['Name'] ?? $contactData['name'] ?? null;
+        $title = $contactData['Title'] ?? $contactData['title'] ?? $contactData['Job Title'] ?? null;
+        $confidenceLevel = $contactData['Confidence'] ?? $contactData['confidence'] ?? $contactData['Confidence Level'] ?? null;
+        $source = $contactData['Source'] ?? $contactData['source'] ?? $contactData['URL'] ?? null;
+
+        // Skip if no name provided
+        if (empty($name)) {
+            return;
+        }
 
         $stmt = $this->db->prepare("
             INSERT INTO contacts (job_id, name, title, confidence, source)
