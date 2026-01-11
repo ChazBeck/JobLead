@@ -32,6 +32,12 @@ switch ($page) {
     case 'details':
         require '../src/pages/details.php';
         break;
+    case 'update_status':
+        require '../src/pages/update_status.php';
+        break;
+    case 'webhook_receive':
+        require '../src/pages/webhook_receive.php';
+        break;
     case 'dashboard':
     default:
         require '../src/pages/dashboard.php';
