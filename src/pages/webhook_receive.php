@@ -97,9 +97,11 @@ try {
         'job_id' => $jobId,
         'offerings_updated' => array_keys($offerings)
     ]);
+    exit; // Stop execution to prevent HTML rendering
     
 } catch (Exception $e) {
     http_response_code(500);
     error_log("Webhook error: " . $e->getMessage());
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    exit; // Stop execution to prevent HTML rendering
 }
