@@ -29,6 +29,30 @@ $jobId = intval($data['job_id']);
 $offerings = $data['offerings'];
 $notes = $data['notes'] ?? null;
 
+// Handle case where offerings might be a JSON string (from Zapier)
+if (is_string($offerings)) {
+    $decoded = json_decode($offerings, true);
+    if ($decoded !== null) {
+        // If the decoded string itself contains nested structure, extract it
+        if (isset($decoded['offerings']) && is_array($decoded['offerings'])) {
+            $offerings = $decoded['offerings'];
+            // Also extract notes if present in nested structure
+            if (!$notes && isset($decoded['notes'])) {
+                $notes = $decoded['notes'];
+            }
+        } else {
+            $offerings = $decoded;
+        }
+    }
+}
+
+// Ensure offerings is an array
+if (!is_array($offerings)) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'Offerings must be an object/array']);
+    exit;
+}
+
 // Validate offerings structure using centralized class
 $validOfferings = OfferingTypes::getValidKeys();
 
