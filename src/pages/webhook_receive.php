@@ -7,6 +7,11 @@ ini_set('log_errors', 1);
 error_reporting(E_ALL);
 
 try {
+    // Load config if not already loaded (when called directly vs via router)
+    if (!defined('DB_HOST')) {
+        require_once __DIR__ . '/../../config/config.php';
+    }
+    
     require_once __DIR__ . '/../Database.php';
     require_once __DIR__ . '/../OfferingTypes.php';
 } catch (Exception $e) {
@@ -78,6 +83,11 @@ foreach (array_keys($offerings) as $key) {
 try {
     $db = new Database();
     $conn = $db->connect();
+    
+    // Verify connection succeeded
+    if (!$conn) {
+        throw new Exception('Database connection failed');
+    }
     
     // Check if job exists
     $stmt = $conn->prepare("SELECT id FROM jobs WHERE id = ?");
