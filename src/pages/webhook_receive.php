@@ -82,7 +82,7 @@ foreach (array_keys($offerings) as $key) {
 
 try {
     $db = new Database();
-    $conn = $db->connect();
+    $conn = $db->getConnection();
     
     // Verify connection succeeded
     if (!$conn) {
