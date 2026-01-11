@@ -106,11 +106,16 @@ try {
     $types = '';
     $values = [];
     
+    // Log what we're processing
+    error_log("Processing offerings: " . json_encode($offerings));
+    error_log("Valid offering keys: " . json_encode($validOfferings));
+    
     foreach ($validOfferings as $offering) {
         if (isset($offerings[$offering])) {
             $updateFields[] = "$offering = ?";
             $types .= 'i';
             $values[] = $offerings[$offering] ? 1 : 0;
+            error_log("Setting $offering = " . ($offerings[$offering] ? '1' : '0'));
         }
     }
     
@@ -129,6 +134,10 @@ try {
     $values[] = $jobId;
     
     $sql = "UPDATE jobs SET " . implode(', ', $updateFields) . " WHERE id = ?";
+    error_log("SQL Query: $sql");
+    error_log("Bind types: $types");
+    error_log("Values: " . json_encode($values));
+    
     $stmt = $conn->prepare($sql);
     $stmt->bind_param($types, ...$values);
     $stmt->execute();
