@@ -59,6 +59,31 @@ class JobImporter {
     }
 
     /**
+     * Parse flexible date formats and return MySQL date format or null
+     * @param string $dateString Date string to parse
+     * @return string|null Date in YYYY-MM-DD format or null
+     */
+    private function parseDate($dateString) {
+        if (empty($dateString)) {
+            return null;
+        }
+        
+        // If already in YYYY-MM-DD format, return as-is
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateString)) {
+            return $dateString;
+        }
+        
+        // Try to parse with strtotime
+        $timestamp = strtotime($dateString);
+        if ($timestamp !== false) {
+            return date('Y-m-d', $timestamp);
+        }
+        
+        // If can't parse, return null to avoid database errors
+        return null;
+    }
+    
+    /**
      * Recursively clean all fields in job data
      * Removes citations and cleans URLs from all string values
      * @param mixed $data Data to clean (string, array, or other)
@@ -185,8 +210,8 @@ class JobImporter {
 
         // Prepare job data - create variables for bind_param
         $location = $jobData['Location'] ?? null;
-        $postedDate = $jobData['Posted/Updated Date'] ?? null;
-        $lastSeenDate = $jobData['Last Seen Date'] ?? null;
+        $postedDate = $this->parseDate($jobData['Posted/Updated Date'] ?? null);
+        $lastSeenDate = $this->parseDate($jobData['Last Seen Date'] ?? null);
         $jobDescription = $jobData['Job Description'] ?? null;
         $whyNow = $jobData['Why Now'] ?? null;
         $verificationLevel = $jobData['Verification Level'] ?? null;
