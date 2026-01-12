@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../OfferingTypes.php';
+require_once __DIR__ . '/../constants.php';
 
 // Get job ID from URL
 $jobId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -83,7 +84,15 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                 </div>
                 <div class="detail-row">
                     <span class="label">Status:</span>
-                    <span class="value"><?php echo htmlspecialchars($job['status'] ?? 'N/A'); ?></span>
+                    <span class="value">
+                        <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>">
+                            <?php foreach (VALID_JOB_STATUSES as $status): ?>
+                                <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($status); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Posted Date:</span>
@@ -208,5 +217,73 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
             <?php endif; ?>
         </div>
     </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusDropdown = document.querySelector('.status-dropdown');
+        
+        if (statusDropdown) {
+            statusDropdown.addEventListener('change', function() {
+                const jobId = this.dataset.jobId;
+                const newStatus = this.value;
+                const originalValue = this.querySelector('option[selected]').value;
+                
+                // Disable dropdown during update
+                this.disabled = true;
+                
+                // Send AJAX request to update status
+                fetch('?page=update_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        job_id: jobId,
+                        status: newStatus
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server returned ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Update the selected attribute
+                        this.querySelectorAll('option').forEach(opt => {
+                            opt.removeAttribute('selected');
+                        });
+                        this.querySelector(`option[value="${newStatus}"]`).setAttribute('selected', 'selected');
+                        
+                        // Show success message
+                        const successMsg = document.createElement('div');
+                        successMsg.className = 'success-message';
+                        successMsg.textContent = 'Status updated successfully!';
+                        successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white; padding: 15px 20px; border-radius: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 1000;';
+                        document.body.appendChild(successMsg);
+                        
+                        setTimeout(() => {
+                            successMsg.remove();
+                        }, 3000);
+                        
+                        console.log('Status updated successfully');
+                    } else {
+                        alert('Failed to update status: ' + (data.message || 'Unknown error'));
+                        this.value = originalValue;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to update status: ' + error.message);
+                    this.value = originalValue;
+                })
+                .finally(() => {
+                    this.disabled = false;
+                });
+            });
+        }
+    });
+    </script>
 
 <?php renderFooter(); ?>
