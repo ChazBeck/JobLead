@@ -1,0 +1,12 @@
+<?php
+/**
+ * Local Development Configuration Template
+ * 
+ * Copy this file to config.local.php and add your actual credentials
+ * config.local.php is in .gitignore and will not be committed
+ */
+
+// Webhook Configuration - Replace with your actual webhook URLs
+putenv('ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/hooks/catch/YOUR_WEBHOOK_ID');
+
+// Add other local development settings here as needed

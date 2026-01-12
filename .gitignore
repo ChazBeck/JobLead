@@ -1,6 +1,9 @@
 # Production config (contains sensitive credentials)
 config/config.prod.php
 
+# Local development config (contains sensitive webhooks/keys)
+config/config.local.php
+
 # Uploads directory
 uploads/*
 !uploads/.gitkeep

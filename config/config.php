@@ -4,6 +4,12 @@
  * Detects environment and loads appropriate config
  */
 
+// Load local config if it exists (for sensitive dev settings)
+$localConfig = __DIR__ . '/config.local.php';
+if (file_exists($localConfig)) {
+    require_once $localConfig;
+}
+
 // Check if production config exists
 $prodConfig = __DIR__ . '/config.prod.php';
 if (file_exists($prodConfig)) {
@@ -34,8 +40,10 @@ if (file_exists($prodConfig)) {
     define('ENVIRONMENT', 'development');
 
     // Webhook Configuration
+    // IMPORTANT: Set your actual webhook URL here for local development
+    // DO NOT commit real webhook URLs to version control
     define('WEBHOOKS', [
-        'zapier_ai_analysis' => 'https://hooks.zapier.com/hooks/catch/20909251/ugy3ijf/'
+        'zapier_ai_analysis' => getenv('ZAPIER_WEBHOOK_URL') ?: ''
     ]);
 
     // Error reporting (enabled for development)
