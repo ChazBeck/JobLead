@@ -60,8 +60,22 @@ try {
     
     // Update the status
     $stmt = $conn->prepare("UPDATE jobs SET status = ? WHERE id = ?");
+    if (!$stmt) {
+        throw new Exception('Failed to prepare update statement: ' . $conn->error);
+    }
+    
     $stmt->bind_param("si", $newStatus, $jobId);
-    $stmt->execute();
+    
+    if (!$stmt->execute()) {
+        throw new Exception('Failed to execute update: ' . $stmt->error);
+    }
+    
+    if ($stmt->affected_rows === 0) {
+        // This might be OK if the status didn't actually change
+        error_log("No rows affected for job #{$jobId}. Old status: '{$oldStatus}', New status: '{$newStatus}'");
+    }
+    
+    $stmt->close();
     
     // Trigger actions based on status change
     performStatusAction($jobId, $oldStatus, $newStatus, $conn);

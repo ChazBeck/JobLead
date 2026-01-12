@@ -219,6 +219,8 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                 const jobId = this.dataset.jobId;
                 const newStatus = this.value;
                 const originalValue = this.querySelector('option[selected]').value;
+                const originalValueLower = originalValue.toLowerCase();
+                const newStatusLower = newStatus.toLowerCase();
                 
                 // Disable dropdown during update
                 this.disabled = true;
@@ -234,7 +236,12 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                         status: newStatus
                     })
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server returned ' + response.status);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.success) {
                         // Update the selected attribute
@@ -243,12 +250,15 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                         });
                         this.querySelector(`option[value="${newStatus}"]`).setAttribute('selected', 'selected');
                         
-                        // If status changed to "Not interested", refresh page to move item to non-active tab
-                        if (newStatus.toLowerCase() === 'not interested') {
+                        // Check if we need to move between active/non-active tabs
+                        const wasNotInterested = originalValueLower === 'not interested';
+                        const isNotInterested = newStatusLower === 'not interested';
+                        
+                        // Reload page if status crosses the active/non-active boundary
+                        if (wasNotInterested !== isNotInterested) {
                             window.location.reload();
                         }
                         
-                        // Show success feedback (optional)
                         console.log('Status updated successfully');
                     } else {
                         alert('Failed to update status: ' + (data.message || 'Unknown error'));
@@ -257,7 +267,7 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Failed to update status');
+                    alert('Failed to update status: ' + error.message);
                     this.value = originalValue;
                 })
                 .finally(() => {
