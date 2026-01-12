@@ -25,12 +25,19 @@ if (!$data || !isset($data['job_id']) || !isset($data['status'])) {
 $jobId = intval($data['job_id']);
 $newStatus = $data['status'];
 
-// Validate status using constants
-if (!in_array($newStatus, VALID_JOB_STATUSES)) {
+// Validate status using constants (case-insensitive)
+$validStatuses = array_map('strtolower', VALID_JOB_STATUSES);
+$statusLower = strtolower($newStatus);
+
+if (!in_array($statusLower, $validStatuses)) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'message' => 'Invalid status']);
+    echo json_encode(['success' => false, 'message' => 'Invalid status: ' . $newStatus]);
     exit;
 }
+
+// Find the correctly cased status from the constants
+$statusIndex = array_search($statusLower, $validStatuses);
+$newStatus = VALID_JOB_STATUSES[$statusIndex];
 
 try {
     $db = new Database();
