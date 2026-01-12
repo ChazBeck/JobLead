@@ -546,3 +546,66 @@ table a:hover {
     cursor: not-allowed;
     transform: none;
 }
+
+.button-group {
+    display: flex;
+    gap: 10px;
+}
+
+.edit-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.edit-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(52, 152, 219, 0.4);
+}
+
+.cancel-button {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(149, 165, 166, 0.3);
+}
+
+.cancel-button:hover {
+    background-color: #7f8c8d;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(149, 165, 166, 0.4);
+}
+
+.cancel-button:active,
+.edit-button:active {
+    transform: translateY(0);
+}
+
+/* Read-only field styling */
+.editable-field[readonly],
+.editable-textarea[readonly] {
+    background-color: #f8f9fa;
+    cursor: default;
+    border-color: #e0e0e0;
+}
+
+.editable-field[disabled],
+.editable-textarea[disabled] {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+    border-color: #e0e0e0;
+}

@@ -47,10 +47,14 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
 
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
             <div>
-                <h2 class="editable-heading" contenteditable="true" data-field="company"><?php echo htmlspecialchars($job['company']); ?></h2>
-                <h3 class="editable-heading" contenteditable="true" data-field="role_title"><?php echo htmlspecialchars($job['role_title']); ?></h3>
+                <h2 class="editable-heading" contenteditable="false" data-field="company"><?php echo htmlspecialchars($job['company']); ?></h2>
+                <h3 class="editable-heading" contenteditable="false" data-field="role_title"><?php echo htmlspecialchars($job['role_title']); ?></h3>
             </div>
-            <button id="save-changes" class="save-button" style="display: none;">Save Changes</button>
+            <div class="button-group">
+                <button id="edit-button" class="edit-button">Edit</button>
+                <button id="save-changes" class="save-button" style="display: none;">Save</button>
+                <button id="cancel-changes" class="cancel-button" style="display: none;">Cancel</button>
+            </div>
         </div>
 
         <?php 
@@ -82,19 +86,19 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                 <div class="detail-row">
                     <span class="label">Location:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="location" value="<?php echo htmlspecialchars($job['location'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="location" value="<?php echo htmlspecialchars($job['location'] ?? ''); ?>" readonly />
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Industry:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="industry" value="<?php echo htmlspecialchars($job['industry'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="industry" value="<?php echo htmlspecialchars($job['industry'] ?? ''); ?>" readonly />
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Status:</span>
                     <span class="value">
-                        <select class="status-dropdown editable-field" data-field="status" data-job-id="<?php echo $job['id']; ?>">
+                        <select class="status-dropdown editable-field" data-field="status" data-job-id="<?php echo $job['id']; ?>" disabled>
                             <?php foreach (VALID_JOB_STATUSES as $status): ?>
                                 <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
                                     <?php echo htmlspecialchars($status); ?>
@@ -106,13 +110,13 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                 <div class="detail-row">
                     <span class="label">Posted Date:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="posted_date" value="<?php echo htmlspecialchars($job['posted_date'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="posted_date" value="<?php echo htmlspecialchars($job['posted_date'] ?? ''); ?>" readonly />
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Last Seen:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="last_seen_date" value="<?php echo htmlspecialchars($job['last_seen_date'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="last_seen_date" value="<?php echo htmlspecialchars($job['last_seen_date'] ?? ''); ?>" readonly />
                     </span>
                 </div>
             </div>
@@ -122,19 +126,19 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                 <div class="detail-row">
                     <span class="label">Revenue Tier:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="revenue_tier" value="<?php echo htmlspecialchars($job['revenue_tier'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="revenue_tier" value="<?php echo htmlspecialchars($job['revenue_tier'] ?? ''); ?>" readonly />
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Revenue Estimate:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="revenue_estimate" value="<?php echo htmlspecialchars($job['revenue_estimate'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="revenue_estimate" value="<?php echo htmlspecialchars($job['revenue_estimate'] ?? ''); ?>" readonly />
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Parent Company:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="parent_company" value="<?php echo htmlspecialchars($job['parent_company'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="parent_company" value="<?php echo htmlspecialchars($job['parent_company'] ?? ''); ?>" readonly />
                     </span>
                 </div>
             </div>
@@ -144,25 +148,25 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                 <div class="detail-row">
                     <span class="label">Fit Score:</span>
                     <span class="value">
-                        <input type="number" class="editable-field" data-field="fit_score" value="<?php echo htmlspecialchars($job['fit_score'] ?? ''); ?>" min="0" max="10" step="0.1" style="width: 80px;" /> / 10
+                        <input type="number" class="editable-field" data-field="fit_score" value="<?php echo htmlspecialchars($job['fit_score'] ?? ''); ?>" min="0" max="10" step="0.1" style="width: 80px;" readonly /> / 10
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Confidence:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="confidence" value="<?php echo htmlspecialchars($job['confidence'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="confidence" value="<?php echo htmlspecialchars($job['confidence'] ?? ''); ?>" readonly />
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Verification Level:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="verification_level" value="<?php echo htmlspecialchars($job['verification_level'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="verification_level" value="<?php echo htmlspecialchars($job['verification_level'] ?? ''); ?>" readonly />
                     </span>
                 </div>
                 <div class="detail-row">
                     <span class="label">Engagement Type:</span>
                     <span class="value">
-                        <input type="text" class="editable-field" data-field="engagement_type" value="<?php echo htmlspecialchars($job['engagement_type'] ?? ''); ?>" />
+                        <input type="text" class="editable-field" data-field="engagement_type" value="<?php echo htmlspecialchars($job['engagement_type'] ?? ''); ?>" readonly />
                     </span>
                 </div>
             </div>
@@ -208,55 +212,100 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
             <div class="detail-section">
                 <h4>Job Description</h4>
                 <div class="long-text">
-                    <textarea class="editable-textarea" data-field="job_description" rows="10"><?php echo htmlspecialchars($job['job_description'] ?? ''); ?></textarea>
+                    <textarea class="editable-textarea" data-field="job_description" rows="10" readonly><?php echo htmlspecialchars($job['job_description'] ?? ''); ?></textarea>
                 </div>
             </div>
 
             <div class="detail-section">
                 <h4>Why Now</h4>
                 <div class="long-text">
-                    <textarea class="editable-textarea" data-field="why_now" rows="6"><?php echo htmlspecialchars($job['why_now'] ?? ''); ?></textarea>
+                    <textarea class="editable-textarea" data-field="why_now" rows="6" readonly><?php echo htmlspecialchars($job['why_now'] ?? ''); ?></textarea>
                 </div>
             </div>
 
             <div class="detail-section">
                 <h4>Recommended Angle</h4>
                 <div class="long-text">
-                    <textarea class="editable-textarea" data-field="recommended_angle" rows="6"><?php echo htmlspecialchars($job['recommended_angle'] ?? ''); ?></textarea>
+                    <textarea class="editable-textarea" data-field="recommended_angle" rows="6" readonly><?php echo htmlspecialchars($job['recommended_angle'] ?? ''); ?></textarea>
                 </div>
             </div>
 
-            <?php if (!empty($job['source_link'])): ?>
             <div class="detail-section">
                 <h4>Source</h4>
                 <div class="detail-row">
-                    <input type="text" class="editable-field" data-field="source_link" value="<?php echo htmlspecialchars($job['source_link'] ?? ''); ?>" style="width: 100%;" />
+                    <input type="text" class="editable-field" data-field="source_link" value="<?php echo htmlspecialchars($job['source_link'] ?? ''); ?>" placeholder="Add source URL" style="width: 100%;" readonly />
                 </div>
             </div>
-            <?php else: ?>
-            <div class="detail-section">
-                <h4>Source</h4>
-                <div class="detail-row">
-                    <input type="text" class="editable-field" data-field="source_link" value="" placeholder="Add source URL" style="width: 100%;" />
-                </div>
-            </div>
-            <?php endif; ?>
         </div>
     </main>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const jobId = <?php echo $job['id']; ?>;
+        const editButton = document.getElementById('edit-button');
         const saveButton = document.getElementById('save-changes');
-        const editableFields = document.querySelectorAll('.editable-field, .editable-textarea, .editable-heading');
-        let hasChanges = false;
+        const cancelButton = document.getElementById('cancel-changes');
+        const editableFields = document.querySelectorAll('.editable-field, .editable-textarea');
+        const editableHeadings = document.querySelectorAll('.editable-heading');
+        const statusDropdown = document.querySelector('.status-dropdown');
         
-        // Track changes
-        editableFields.forEach(field => {
-            field.addEventListener('input', function() {
-                hasChanges = true;
-                saveButton.style.display = 'block';
+        let originalValues = {};
+        let isEditMode = false;
+        
+        // Store original values
+        function storeOriginalValues() {
+            originalValues = {};
+            editableFields.forEach(field => {
+                originalValues[field.dataset.field] = field.value;
             });
+            editableHeadings.forEach(heading => {
+                originalValues[heading.dataset.field] = heading.textContent.trim();
+            });
+        }
+        
+        // Enable edit mode
+        editButton.addEventListener('click', function() {
+            isEditMode = true;
+            storeOriginalValues();
+            
+            // Enable all fields
+            editableFields.forEach(field => {
+                field.removeAttribute('readonly');
+                field.removeAttribute('disabled');
+            });
+            
+            editableHeadings.forEach(heading => {
+                heading.contentEditable = 'true';
+            });
+            
+            // Toggle buttons
+            editButton.style.display = 'none';
+            saveButton.style.display = 'inline-block';
+            cancelButton.style.display = 'inline-block';
+        });
+        
+        // Cancel changes
+        cancelButton.addEventListener('click', function() {
+            isEditMode = false;
+            
+            // Restore original values
+            editableFields.forEach(field => {
+                field.value = originalValues[field.dataset.field] || '';
+                field.setAttribute('readonly', 'readonly');
+                if (field.tagName === 'SELECT') {
+                    field.setAttribute('disabled', 'disabled');
+                }
+            });
+            
+            editableHeadings.forEach(heading => {
+                heading.textContent = originalValues[heading.dataset.field] || '';
+                heading.contentEditable = 'false';
+            });
+            
+            // Toggle buttons
+            editButton.style.display = 'inline-block';
+            saveButton.style.display = 'none';
+            cancelButton.style.display = 'none';
         });
         
         // Save all changes
@@ -265,20 +314,16 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
             
             // Collect all field values
             editableFields.forEach(field => {
-                const fieldName = field.dataset.field;
-                let value;
-                
-                if (field.contentEditable === 'true') {
-                    value = field.textContent.trim();
-                } else {
-                    value = field.value;
-                }
-                
-                updates[fieldName] = value;
+                updates[field.dataset.field] = field.value;
             });
             
-            // Disable save button during update
+            editableHeadings.forEach(heading => {
+                updates[heading.dataset.field] = heading.textContent.trim();
+            });
+            
+            // Disable buttons during update
             saveButton.disabled = true;
+            cancelButton.disabled = true;
             saveButton.textContent = 'Saving...';
             
             // Send AJAX request to update job
@@ -300,13 +345,25 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
             })
             .then(data => {
                 if (data.success) {
-                    // Show success message
                     showSuccessMessage('Changes saved successfully!');
                     
-                    // Hide save button
-                    hasChanges = false;
+                    // Disable all fields
+                    isEditMode = false;
+                    editableFields.forEach(field => {
+                        field.setAttribute('readonly', 'readonly');
+                        if (field.tagName === 'SELECT') {
+                            field.setAttribute('disabled', 'disabled');
+                        }
+                    });
+                    
+                    editableHeadings.forEach(heading => {
+                        heading.contentEditable = 'false';
+                    });
+                    
+                    // Toggle buttons
+                    editButton.style.display = 'inline-block';
                     saveButton.style.display = 'none';
-                    saveButton.textContent = 'Save Changes';
+                    cancelButton.style.display = 'none';
                 } else {
                     alert('Failed to save changes: ' + (data.message || 'Unknown error'));
                 }
@@ -317,57 +374,10 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
             })
             .finally(() => {
                 saveButton.disabled = false;
-                saveButton.textContent = 'Save Changes';
+                cancelButton.disabled = false;
+                saveButton.textContent = 'Save';
             });
         });
-        
-        // Status dropdown quick update (separate from save button)
-        const statusDropdown = document.querySelector('.status-dropdown');
-        if (statusDropdown) {
-            statusDropdown.addEventListener('change', function() {
-                const newStatus = this.value;
-                const originalValue = this.querySelector('option[selected]').value;
-                
-                this.disabled = true;
-                
-                fetch('?page=update_status', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        job_id: jobId,
-                        status: newStatus
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Server returned ' + response.status);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        this.querySelectorAll('option').forEach(opt => {
-                            opt.removeAttribute('selected');
-                        });
-                        this.querySelector(`option[value="${newStatus}"]`).setAttribute('selected', 'selected');
-                        showSuccessMessage('Status updated successfully!');
-                    } else {
-                        alert('Failed to update status: ' + (data.message || 'Unknown error'));
-                        this.value = originalValue;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to update status: ' + error.message);
-                    this.value = originalValue;
-                })
-                .finally(() => {
-                    this.disabled = false;
-                });
-            });
-        }
         
         // Helper function to show success messages
         function showSuccessMessage(message) {
