@@ -203,7 +203,9 @@ class JobImporter {
             'Fit Score' => ['fit score', 'Score', 'fit_score'],
             'Industry' => ['industry', 'Sector', 'Vertical'],
             'Engagement Type' => ['engagement type', 'Engagement', 'engagement_type'],
+            'Employment Type' => ['employment type', 'Job Type', 'Type', 'employment_type'],
             'Job Description' => ['job description', 'Description', 'Job Details', 'job_description'],
+            'Job Overview' => ['job overview', 'Overview', 'job_overview'],
             'Likely Buyers/Managers' => ['likely buyers/managers', 'Contacts', 'Buyers', 'Managers', 'contacts'],
             'Recommended Angle' => ['recommended angle', 'Angle', 'Approach', 'recommended_angle'],
             'Source Link' => ['source link', 'Source', 'URL', 'Link', 'source_link'],
@@ -267,9 +269,11 @@ class JobImporter {
 
         // Prepare job data - create variables for bind_param
         $location = $jobData['Location'] ?? null;
+        $employmentType = $jobData['Employment Type'] ?? null;
         $postedDate = $this->parseDate($jobData['Posted/Updated Date'] ?? null);
         $lastSeenDate = $this->parseDate($jobData['Last Seen Date'] ?? null);
         $jobDescription = $jobData['Job Description'] ?? null;
+        $jobOverview = $jobData['Job Overview'] ?? null;
         $whyNow = $jobData['Why Now'] ?? null;
         $verificationLevel = $jobData['Verification Level'] ?? null;
         $confidence = $jobData['Confidence'] ?? null;
@@ -286,11 +290,11 @@ class JobImporter {
 
         $stmt = $this->db->prepare("
             INSERT INTO jobs (
-                company, role_title, job_description, location, posted_date, last_seen_date,
-                why_now, verification_level, confidence, revenue_tier,
-                revenue_estimate, revenue_confidence, fit_score, engagement_type,
+                company, role_title, job_description, job_overview, location, employment_type,
+                posted_date, last_seen_date, why_now, verification_level, confidence,
+                revenue_tier, revenue_estimate, revenue_confidence, fit_score, engagement_type,
                 recommended_angle, industry, source_link, parent_company, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         if (!$stmt) {
@@ -298,11 +302,13 @@ class JobImporter {
         }
 
         $stmt->bind_param(
-            'ssssssssssssissssss',
+            'ssssssssssssssissssss',
             $company,
             $roleTitle,
             $jobDescription,
+            $jobOverview,
             $location,
+            $employmentType,
             $postedDate,
             $lastSeenDate,
             $whyNow,

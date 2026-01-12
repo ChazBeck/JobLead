@@ -26,11 +26,11 @@ $updates = $data['updates'];
 
 // Define allowed fields that can be updated
 $allowedFields = [
-    'company', 'role_title', 'location', 'industry', 'status',
+    'company', 'role_title', 'location', 'industry', 'employment_type', 'status',
     'posted_date', 'last_seen_date', 'revenue_tier', 'revenue_estimate',
     'parent_company', 'fit_score', 'confidence', 'verification_level',
-    'engagement_type', 'job_description', 'why_now', 'recommended_angle',
-    'source_link'
+    'engagement_type', 'job_description', 'job_overview', 'why_now',
+    'recommended_angle', 'source_link'
 ];
 
 // Filter out any fields that aren't allowed

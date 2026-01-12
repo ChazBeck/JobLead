@@ -96,6 +96,12 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                     </span>
                 </div>
                 <div class="detail-row">
+                    <span class="label">Employment Type:</span>
+                    <span class="value">
+                        <input type="text" class="editable-field" data-field="employment_type" value="<?php echo htmlspecialchars($job['employment_type'] ?? ''); ?>" readonly />
+                    </span>
+                </div>
+                <div class="detail-row">
                     <span class="label">Status:</span>
                     <span class="value">
                         <select class="status-dropdown editable-field" data-field="status" data-job-id="<?php echo $job['id']; ?>" disabled>
@@ -215,6 +221,15 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
                     <textarea class="editable-textarea" data-field="job_description" rows="10" readonly><?php echo htmlspecialchars($job['job_description'] ?? ''); ?></textarea>
                 </div>
             </div>
+
+            <?php if (!empty($job['job_overview'])): ?>
+            <div class="detail-section">
+                <h4>Job Overview</h4>
+                <div class="long-text">
+                    <textarea class="editable-textarea" data-field="job_overview" rows="6" readonly><?php echo htmlspecialchars($job['job_overview']); ?></textarea>
+                </div>
+            </div>
+            <?php endif; ?>
 
             <div class="detail-section">
                 <h4>Why Now</h4>
