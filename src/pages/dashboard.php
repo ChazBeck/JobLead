@@ -29,10 +29,17 @@ try {
     ";
 
     $result = $db->query($query);
-    $jobs = [];
+    $activeJobs = [];
+    $nonActiveJobs = [];
+    
     if ($result) {
         while ($row = $result->fetch_assoc()) {
-            $jobs[] = $row;
+            // Separate jobs into active and non-active
+            if (strtolower($row['status'] ?? 'New') === 'not interested') {
+                $nonActiveJobs[] = $row;
+            } else {
+                $activeJobs[] = $row;
+            }
         }
     }
 } catch (Exception $e) {
@@ -45,72 +52,166 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
     <main>
         <h2>Job Leads Dashboard</h2>
         
-        <?php if (empty($jobs)): ?>
-            <p>No jobs found. <a href="?page=upload">Upload some jobs</a> to get started.</p>
-        <?php else: ?>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Company</th>
-                        <th>Job Role</th>
-                        <th>Industry</th>
-                        <th>Hiring Manager Name</th>
-                        <th>Hiring Manager Title</th>
-                        <th>Status</th>
-                        <th>Details</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($jobs as $job): ?>
-                        <?php
-                        // Get detected offerings using centralized class
-                        $offeringLabels = OfferingTypes::getLabels();
-                        $detectedOfferings = [];
-                        foreach ($offeringLabels as $key => $label) {
-                            if (($job[$key] ?? 0) == 1) {
-                                $detectedOfferings[] = $label;
-                            }
-                        }
-                        $hasAnalysis = $job['ai_analyzed_at'] !== null;
-                        ?>
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" data-tab="active">Active Leads (<?php echo count($activeJobs); ?>)</button>
+            <button class="tab-button" data-tab="nonactive">Non-Active Leads (<?php echo count($nonActiveJobs); ?>)</button>
+        </div>
+        
+        <!-- Active Leads Tab -->
+        <div id="active-tab" class="tab-content active">
+            <?php if (empty($activeJobs)): ?>
+                <p>No active jobs found. <a href="?page=upload">Upload some jobs</a> to get started.</p>
+            <?php else: ?>
+                <table>
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($job['company']); ?></td>
-                            <td>
-                                <div class="role-title"><?php echo htmlspecialchars($job['role_title']); ?></div>
-                            </td>
-                            <td><?php echo htmlspecialchars($job['industry'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($job['contact_name'] ?? 'N/A'); ?></td>
-                            <td><?php echo htmlspecialchars($job['contact_title'] ?? 'N/A'); ?></td>
-                            <td>
-                                <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>">
-                                    <?php foreach (VALID_JOB_STATUSES as $status): ?>
-                                        <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($status); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </td>
-                            <td><a href="?page=details&id=<?php echo $job['id']; ?>">View Details</a></td>
+                            <th>Company</th>
+                            <th>Job Role</th>
+                            <th>Industry</th>
+                            <th>Hiring Manager Name</th>
+                            <th>Hiring Manager Title</th>
+                            <th>Status</th>
+                            <th>Details</th>
                         </tr>
-                        <?php if ($hasAnalysis && !empty($detectedOfferings)): ?>
-                        <tr class="offerings-row">
-                            <td colspan="7">
-                                <div class="role-offerings">
-                                    <?php foreach ($detectedOfferings as $offering): ?>
-                                        <span class="offering-badge"><?php echo htmlspecialchars($offering); ?></span>
-                                    <?php endforeach; ?>
-                                </div>
-                            </td>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($activeJobs as $job): ?>
+                            <?php
+                            // Get detected offerings using centralized class
+                            $offeringLabels = OfferingTypes::getLabels();
+                            $detectedOfferings = [];
+                            foreach ($offeringLabels as $key => $label) {
+                                if (($job[$key] ?? 0) == 1) {
+                                    $detectedOfferings[] = $label;
+                                }
+                            }
+                            $hasAnalysis = $job['ai_analyzed_at'] !== null;
+                            ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($job['company']); ?></td>
+                                <td>
+                                    <div class="role-title"><?php echo htmlspecialchars($job['role_title']); ?></div>
+                                </td>
+                                <td><?php echo htmlspecialchars($job['industry'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars($job['contact_name'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars($job['contact_title'] ?? 'N/A'); ?></td>
+                                <td>
+                                    <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>">
+                                        <?php foreach (VALID_JOB_STATUSES as $status): ?>
+                                            <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($status); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td><a href="?page=details&id=<?php echo $job['id']; ?>">View Details</a></td>
+                            </tr>
+                            <?php if ($hasAnalysis && !empty($detectedOfferings)): ?>
+                            <tr class="offerings-row">
+                                <td colspan="7">
+                                    <div class="role-offerings">
+                                        <?php foreach ($detectedOfferings as $offering): ?>
+                                            <span class="offering-badge"><?php echo htmlspecialchars($offering); ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Non-Active Leads Tab -->
+        <div id="nonactive-tab" class="tab-content">
+            <?php if (empty($nonActiveJobs)): ?>
+                <p>No non-active jobs found.</p>
+            <?php else: ?>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Company</th>
+                            <th>Job Role</th>
+                            <th>Industry</th>
+                            <th>Hiring Manager Name</th>
+                            <th>Hiring Manager Title</th>
+                            <th>Status</th>
+                            <th>Details</th>
                         </tr>
-                        <?php endif; ?>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($nonActiveJobs as $job): ?>
+                            <?php
+                            // Get detected offerings using centralized class
+                            $offeringLabels = OfferingTypes::getLabels();
+                            $detectedOfferings = [];
+                            foreach ($offeringLabels as $key => $label) {
+                                if (($job[$key] ?? 0) == 1) {
+                                    $detectedOfferings[] = $label;
+                                }
+                            }
+                            $hasAnalysis = $job['ai_analyzed_at'] !== null;
+                            ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($job['company']); ?></td>
+                                <td>
+                                    <div class="role-title"><?php echo htmlspecialchars($job['role_title']); ?></div>
+                                </td>
+                                <td><?php echo htmlspecialchars($job['industry'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars($job['contact_name'] ?? 'N/A'); ?></td>
+                                <td><?php echo htmlspecialchars($job['contact_title'] ?? 'N/A'); ?></td>
+                                <td>
+                                    <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>">
+                                        <?php foreach (VALID_JOB_STATUSES as $status): ?>
+                                            <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($status); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                                <td><a href="?page=details&id=<?php echo $job['id']; ?>">View Details</a></td>
+                            </tr>
+                            <?php if ($hasAnalysis && !empty($detectedOfferings)): ?>
+                            <tr class="offerings-row">
+                                <td colspan="7">
+                                    <div class="role-offerings">
+                                        <?php foreach ($detectedOfferings as $offering): ?>
+                                            <span class="offering-badge"><?php echo htmlspecialchars($offering); ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endif; ?>
+        </div>
     </main>
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+                
+                // Remove active class from all buttons and contents
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked button and corresponding content
+                this.classList.add('active');
+                document.getElementById(targetTab + '-tab').classList.add('active');
+            });
+        });
+        
+        // Status dropdown functionality
         const statusDropdowns = document.querySelectorAll('.status-dropdown');
         
         statusDropdowns.forEach(dropdown => {
@@ -141,6 +242,11 @@ renderHeader('JobLead - Jobs Dashboard (Internal)');
                             opt.removeAttribute('selected');
                         });
                         this.querySelector(`option[value="${newStatus}"]`).setAttribute('selected', 'selected');
+                        
+                        // If status changed to "Not interested", refresh page to move item to non-active tab
+                        if (newStatus.toLowerCase() === 'not interested') {
+                            window.location.reload();
+                        }
                         
                         // Show success feedback (optional)
                         console.log('Status updated successfully');
