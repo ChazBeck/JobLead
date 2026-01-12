@@ -481,3 +481,68 @@ table a:hover {
 .tab-content.active {
     display: block;
 }
+
+/* Editable fields styling */
+.editable-field,
+.editable-textarea {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 14px;
+    background-color: #fff;
+    transition: border-color 0.2s, background-color 0.2s;
+}
+
+.editable-field:focus,
+.editable-textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    background-color: #f8fbff;
+}
+
+.editable-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.editable-heading {
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+.editable-heading:focus {
+    outline: 2px solid #3498db;
+    background-color: #f8fbff;
+}
+
+.save-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+}
+
+.save-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(52, 152, 219, 0.4);
+}
+
+.save-button:active {
+    transform: translateY(0);
+}
+
+.save-button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    transform: none;
+}
