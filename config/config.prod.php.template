@@ -29,6 +29,9 @@ define('DB_SOCKET', null);  // Not needed on shared hosting
 // Environment
 define('ENVIRONMENT', 'production');
 
+// Site URL (used for webhooks) - UPDATE THIS
+define('SITE_URL', 'https://tools.veerl.es/apps/joblead/public');
+
 // Webhook Configuration - UPDATE WITH YOUR ZAPIER WEBHOOK URLS
 define('WEBHOOKS', [
     'zapier_ai_analysis' => 'YOUR_ZAPIER_WEBHOOK_URL_HERE'

@@ -32,6 +32,9 @@ switch ($page) {
     case 'details':
         require '../src/pages/details.php';
         break;
+    case 'update_job':
+        require '../src/pages/update_job.php';
+        break;
     case 'update_status':
         require '../src/pages/update_status.php';
         break;

@@ -45,23 +45,28 @@ renderHeader('JobLead - ' . htmlspecialchars($job['company']));
             <a href="?page=dashboard">← Back to Dashboard</a>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-            <div>
-                <h2><?php echo htmlspecialchars($job['company']); ?></h2>
-                <h3><?php echo htmlspecialchars($job['role_title']); ?></h3>
-            </div>
-            <a href="?page=update_job&id=<?php echo $job['id']; ?>" class="btn btn-primary" style="text-decoration: none; background-color: #3498db; color: white; padding: 0.75rem 1.5rem; border-radius: 4px; font-weight: 500; display: inline-block;">Edit</a>
-        </div>
+        <?php if (isset($_GET['updated'])): ?>
+            <div class="message success">Job details updated successfully!</div>
+        <?php endif; ?>
 
-        <div style="margin: 1rem 0; display: flex; align-items: center; gap: 1rem;">
-            <span style="font-weight: 600;">Status:</span>
-            <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;">
-                <?php foreach (VALID_JOB_STATUSES as $status): ?>
-                    <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($status); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <div>
+                <h2 style="margin-bottom: 0.5rem;"><?php echo htmlspecialchars($job['company']); ?></h2>
+                <h3 style="margin: 0;"><?php echo htmlspecialchars($job['role_title']); ?></h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="font-weight: 600;">Status:</span>
+                    <select class="status-dropdown" data-job-id="<?php echo $job['id']; ?>" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: 0.95rem;">
+                        <?php foreach (VALID_JOB_STATUSES as $status): ?>
+                            <option value="<?php echo htmlspecialchars($status); ?>" <?php echo ($job['status'] ?? 'New') === $status ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($status); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <a href="?page=update_job&id=<?php echo $job['id']; ?>" class="btn btn-primary" style="text-decoration: none; background-color: #3498db; color: white; padding: 0.75rem 1.5rem; border-radius: 4px; font-weight: 500; display: inline-block;">Edit</a>
+            </div>
         </div>
 
         <?php 

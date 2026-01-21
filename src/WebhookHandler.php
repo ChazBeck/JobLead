@@ -97,6 +97,12 @@ class WebhookHandler {
      * Get the callback URL for receiving webhook responses
      */
     private static function getCallbackUrl() {
+        // Use configured SITE_URL if available (recommended for production)
+        if (defined('SITE_URL') && !empty(SITE_URL)) {
+            return SITE_URL . '/?page=webhook_receive';
+        }
+        
+        // Fallback to dynamic detection (not reliable with localhost)
         $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
         return $protocol . '://' . $host . BASE_URL . '/?page=webhook_receive';

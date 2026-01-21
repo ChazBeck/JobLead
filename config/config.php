@@ -32,6 +32,9 @@ if (file_exists($prodConfig)) {
 
     // Environment
     define('ENVIRONMENT', 'development');
+    
+    // Site URL (used for webhooks) - change this for local testing with ngrok
+    define('SITE_URL', 'http://localhost/JobLead/public');
 
     // Webhook Configuration
     define('WEBHOOKS', [
