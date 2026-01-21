@@ -120,9 +120,9 @@ class JobImporter {
      */
     public function importFromJSON($jsonString) {
         // Validate JSON
-        $jobs = json_decode($jsonString, true);
+        $data = json_decode($jsonString, true);
         
-        if ($jobs === null) {
+        if ($data === null) {
             return [
                 'success' => false,
                 'message' => 'Invalid JSON format: ' . json_last_error_msg(),
@@ -130,10 +130,18 @@ class JobImporter {
             ];
         }
 
-        if (!is_array($jobs)) {
+        // Check if it's a single job object or array of jobs
+        $jobs = [];
+        if (isset($data[0]) && is_array($data[0])) {
+            // It's an array of job objects
+            $jobs = $data;
+        } elseif (is_array($data) && !empty($data)) {
+            // It's a single job object, wrap it in an array
+            $jobs = [$data];
+        } else {
             return [
                 'success' => false,
-                'message' => 'JSON must be an array of job objects',
+                'message' => 'JSON must be a job object or array of job objects',
                 'count' => 0
             ];
         }
@@ -193,7 +201,7 @@ class JobImporter {
             'Location' => ['location', 'Office Location', 'Work Location'],
             'Posted/Updated Date' => ['posted/updated date', 'Posted Date', 'Date Posted', 'posted_date'],
             'Last Seen Date' => ['last seen date', 'Last Seen', 'last_seen_date'],
-            'Employment Type' => ['employment type', 'Job Type', 'Type'],
+            'Employment Type' => ['employment type', 'Job Type', 'Type', 'employment_type'],
             'Why Now' => ['why now', 'Rationale', 'why_now'],
             'Verification Level' => ['verification level', 'Verification', 'verification_level'],
             'Confidence' => ['confidence', 'Confidence Level'],
@@ -204,6 +212,7 @@ class JobImporter {
             'Industry' => ['industry', 'Sector', 'Vertical'],
             'Engagement Type' => ['engagement type', 'Engagement', 'engagement_type'],
             'Job Description' => ['job description', 'Description', 'Job Details', 'job_description'],
+            'Job Overview' => ['job overview', 'Overview', 'job_overview'],
             'Likely Buyers/Managers' => ['likely buyers/managers', 'Contacts', 'Buyers', 'Managers', 'contacts'],
             'Recommended Angle' => ['recommended angle', 'Angle', 'Approach', 'recommended_angle'],
             'Source Link' => ['source link', 'Source', 'URL', 'Link', 'source_link'],
@@ -214,6 +223,11 @@ class JobImporter {
         $normalized = [];
         
         foreach ($fieldMap as $standardName => $alternatives) {
+            // Ensure alternatives is an array
+            if (!is_array($alternatives)) {
+                $alternatives = [$alternatives];
+            }
+            
             // Check standard name first
             if (isset($jobData[$standardName])) {
                 $normalized[$standardName] = $jobData[$standardName];

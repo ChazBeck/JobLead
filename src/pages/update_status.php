@@ -34,7 +34,7 @@ if (!in_array($newStatus, VALID_JOB_STATUSES)) {
 
 try {
     $db = new Database();
-    $conn = $db->connect();
+    $conn = $db->getConnection();
     
     // Get current status before update
     $stmt = $conn->prepare("SELECT status FROM jobs WHERE id = ?");
