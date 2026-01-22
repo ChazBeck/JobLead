@@ -33,9 +33,33 @@ $data = json_decode($input, true);
 
 // Log the incoming webhook for debugging
 error_log("Webhook received: " . $input);
+error_log("Initial parsed data keys: " . json_encode(array_keys($data ?: [])));
+
+// Handle Zapier's data structure - check if data is nested under a 'data' key
+if (isset($data['data']) && is_array($data['data'])) {
+    error_log("Detected nested 'data' structure from Zapier, extracting...");
+    $data = $data['data'];
+}
+
+// Also check if there's an 'analysis' field that contains the actual data as a JSON string
+if (isset($data['analysis']) && is_string($data['analysis'])) {
+    error_log("Detected 'analysis' field as JSON string, attempting to parse...");
+    $analysisData = json_decode($data['analysis'], true);
+    if ($analysisData !== null && is_array($analysisData)) {
+        error_log("Successfully parsed analysis JSON. Keys: " . json_encode(array_keys($analysisData)));
+        // Merge the analysis data with existing data, prioritizing analysis data
+        $data = array_merge($data, $analysisData);
+        error_log("After merge, data keys: " . json_encode(array_keys($data)));
+    } else {
+        error_log("Failed to parse analysis JSON or result was not an array");
+    }
+}
 
 if (!$data || !isset($data['job_id']) || !isset($data['offerings'])) {
     http_response_code(400);
+    error_log("Missing required fields. Available keys: " . json_encode(array_keys($data ?: [])));
+    error_log("Has job_id: " . (isset($data['job_id']) ? 'yes' : 'no'));
+    error_log("Has offerings: " . (isset($data['offerings']) ? 'yes' : 'no'));
     echo json_encode(['success' => false, 'message' => 'Missing required fields (job_id or offerings)']);
     exit;
 }
